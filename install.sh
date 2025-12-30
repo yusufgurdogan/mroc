@@ -155,7 +155,15 @@ install_mroc() {
     echo "Extracting..."
     cd "$TMP_DIR"
     if [ "$EXT" = "zip" ]; then
-        unzip -q "$ARCHIVE_NAME" || error "Extraction failed"
+        # For WSL, use PowerShell to extract zip
+        if [ "$IS_WSL" = true ]; then
+            WIN_TMP=$(wslpath -w "$TMP_DIR")
+            powershell.exe -Command "Expand-Archive -Path '${WIN_TMP}\\${ARCHIVE_NAME}' -DestinationPath '${WIN_TMP}'" || error "Extraction failed"
+        elif command -v unzip &> /dev/null; then
+            unzip -q "$ARCHIVE_NAME" || error "Extraction failed"
+        else
+            error "unzip not found. Please install unzip or download manually."
+        fi
     else
         tar -xzf "$ARCHIVE_NAME" || error "Extraction failed"
     fi
