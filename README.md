@@ -23,6 +23,16 @@ Download [the latest release](https://github.com/yusufgurdogan/mroc/releases/lat
 curl -sL https://raw.githubusercontent.com/yusufgurdogan/mroc/main/install.sh | bash
 ```
 
+### Windows
+
+The install script works on Windows too (via WSL):
+
+```bash
+curl -sL https://raw.githubusercontent.com/yusufgurdogan/mroc/main/install.sh | bash
+```
+
+Or download the `.zip` file directly from [the releases page](https://github.com/yusufgurdogan/mroc/releases/latest).
+
 ### Build from Source
 
 ```bash

@@ -42,11 +42,30 @@ warn() {
     echo -e "${YELLOW}$1${NC}"
 }
 
+# Check if running in WSL
+is_wsl() {
+    if [ -f /proc/version ]; then
+        grep -qi "microsoft\|wsl" /proc/version 2>/dev/null && return 0
+    fi
+    if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
+        return 0
+    fi
+    return 1
+}
+
 # Detect OS
 detect_os() {
     OS="$(uname -s)"
     case "$OS" in
-        Linux*)     OS_NAME="Linux" ;;
+        Linux*)
+            if is_wsl; then
+                OS_NAME="Linux"
+                IS_WSL=true
+            else
+                OS_NAME="Linux"
+                IS_WSL=false
+            fi
+            ;;
         Darwin*)    OS_NAME="macOS" ;;
         FreeBSD*)   OS_NAME="FreeBSD" ;;
         NetBSD*)    OS_NAME="NetBSD" ;;
@@ -86,7 +105,19 @@ install_mroc() {
     echo "Detecting system..."
     detect_os
     detect_arch
-    echo "  OS: $OS_NAME"
+
+    if [ "$IS_WSL" = true ]; then
+        echo "  OS: Windows (via WSL)"
+        OS_NAME="Windows"
+        # Detect Windows architecture
+        case "$ARCH_NAME" in
+            64bit)   ARCH_NAME="64bit" ;;
+            ARM64)   ARCH_NAME="ARM64" ;;
+            *)       ARCH_NAME="64bit" ;;
+        esac
+    else
+        echo "  OS: $OS_NAME"
+    fi
     echo "  Arch: $ARCH_NAME"
 
     echo "Fetching latest version..."
@@ -130,21 +161,42 @@ install_mroc() {
     fi
 
     # Install
-    echo "Installing to $INSTALL_DIR..."
-    if [ -w "$INSTALL_DIR" ]; then
-        mv "$BINARY_NAME" "$INSTALL_DIR/"
+    if [ "$IS_WSL" = true ]; then
+        # For WSL, install to Windows user's local bin or current directory
+        WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')
+        WIN_INSTALL_DIR="/mnt/c/Users/${WIN_USER}"
+
+        if [ -d "$WIN_INSTALL_DIR" ]; then
+            echo "Installing to ${WIN_INSTALL_DIR}..."
+            mv "${BINARY_NAME}.exe" "$WIN_INSTALL_DIR/" || error "Failed to move binary"
+
+            success ""
+            success "Successfully installed ${BINARY_NAME} ${VERSION}!"
+            success ""
+            echo "The binary is at: C:\\Users\\${WIN_USER}\\${BINARY_NAME}.exe"
+            echo ""
+            warn "To use from anywhere, add it to your PATH or move it to a directory in your PATH."
+            echo ""
+        else
+            error "Could not find Windows user directory. Please download manually from: https://github.com/${GITHUB_REPO}/releases/latest"
+        fi
     else
-        warn "Need sudo to install to $INSTALL_DIR"
-        sudo mv "$BINARY_NAME" "$INSTALL_DIR/"
+        echo "Installing to $INSTALL_DIR..."
+        if [ -w "$INSTALL_DIR" ]; then
+            mv "$BINARY_NAME" "$INSTALL_DIR/"
+        else
+            warn "Need sudo to install to $INSTALL_DIR"
+            sudo mv "$BINARY_NAME" "$INSTALL_DIR/"
+        fi
+
+        chmod +x "$INSTALL_DIR/$BINARY_NAME"
+
+        success ""
+        success "Successfully installed ${BINARY_NAME} ${VERSION}!"
+        success ""
+        echo "Run '${BINARY_NAME} --help' to get started."
+        echo ""
     fi
-
-    chmod +x "$INSTALL_DIR/$BINARY_NAME"
-
-    success ""
-    success "Successfully installed ${BINARY_NAME} ${VERSION}!"
-    success ""
-    echo "Run '${BINARY_NAME} --help' to get started."
-    echo ""
 }
 
 # Run installer
