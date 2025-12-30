@@ -2,36 +2,33 @@
 
 A fork of [croc](https://github.com/schollz/croc) with a custom relay server.
 
-## About
-
-`mroc` is a tool that allows any two computers to simply and securely transfer files and folders.
-
-- Allows **any two computers** to transfer data (using a relay)
-- Provides **end-to-end encryption** (using PAKE)
-- Enables easy **cross-platform** transfers (Windows, Linux, Mac)
-- Allows **multiple file** transfers
-- Allows **resuming transfers** that are interrupted
-- No need for local server or port-forwarding
-- **IPv6-first** with IPv4 fallback
-- Can **use a proxy**, like Tor
-
 ## Install
-
-Download [the latest release](https://github.com/yusufgurdogan/mroc/releases/latest), or install from the command-line:
-
-```bash
-curl -sL https://raw.githubusercontent.com/yusufgurdogan/mroc/main/install.sh | bash
-```
 
 ### Windows
 
-Run in PowerShell:
+**Option 1: One-command install (recommended)**
+
+1. Press `Win + X`, then click **"Windows PowerShell"** or **"Terminal"**
+2. Copy and paste this command, then press Enter:
 
 ```powershell
 irm https://raw.githubusercontent.com/yusufgurdogan/mroc/main/install.ps1 | iex
 ```
 
-Or download the `.zip` file directly from [the releases page](https://github.com/yusufgurdogan/mroc/releases/latest).
+3. Restart your terminal. Done!
+
+**Option 2: Manual download**
+
+1. Go to the [releases page](https://github.com/yusufgurdogan/mroc/releases/latest)
+2. Download the `mroc_vX.X.X_Windows-64bit.zip` file
+3. Extract the zip file
+4. Move `mroc.exe` to a folder in your PATH (or just use it from the extracted folder)
+
+### Linux / macOS / BSD
+
+```bash
+curl -sL https://raw.githubusercontent.com/yusufgurdogan/mroc/main/install.sh | bash
+```
 
 ### Build from Source
 
@@ -46,6 +43,19 @@ git clone https://github.com/yusufgurdogan/mroc.git
 cd mroc
 go build -o mroc
 ```
+
+## About
+
+`mroc` is a tool that allows any two computers to simply and securely transfer files and folders.
+
+- Allows **any two computers** to transfer data (using a relay)
+- Provides **end-to-end encryption** (using PAKE)
+- Enables easy **cross-platform** transfers (Windows, Linux, Mac)
+- Allows **multiple file** transfers
+- Allows **resuming transfers** that are interrupted
+- No need for local server or port-forwarding
+- **IPv6-first** with IPv4 fallback
+- Can **use a proxy**, like Tor
 
 ## Usage
 
