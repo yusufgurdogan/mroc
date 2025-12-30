@@ -25,10 +25,10 @@ curl -sL https://raw.githubusercontent.com/yusufgurdogan/mroc/main/install.sh | 
 
 ### Windows
 
-The install script works on Windows too (via WSL):
+Run in PowerShell:
 
-```bash
-curl -sL https://raw.githubusercontent.com/yusufgurdogan/mroc/main/install.sh | bash
+```powershell
+irm https://raw.githubusercontent.com/yusufgurdogan/mroc/main/install.ps1 | iex
 ```
 
 Or download the `.zip` file directly from [the releases page](https://github.com/yusufgurdogan/mroc/releases/latest).
