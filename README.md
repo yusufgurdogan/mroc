@@ -1,17 +1,10 @@
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/6550035/46709024-9b23ad00-cbf6-11e8-9fb2-ca8b20b7dbec.jpg" width="408px" border="0" alt="croc">
-  <br>
-  <a href="https://github.com/schollz/croc/releases/latest"><img src="https://img.shields.io/github/v/release/schollz/croc" alt="Version"></a>
-  <a href="https://github.com/schollz/croc/actions/workflows/ci.yml"><img src="https://github.com/schollz/croc/actions/workflows/ci.yml/badge.svg" alt="Build Status"></a>
-  <a href="https://github.com/sponsors/schollz"><img alt="GitHub Sponsors" src="https://img.shields.io/github/sponsors/schollz"></a>
-</p>
-<p align="center">
-  <strong>This project’s future depends on community support. <a href="https://github.com/sponsors/schollz">Become a sponsor today</a>.</strong>
-</p>
+# mroc
+
+A fork of [croc](https://github.com/schollz/croc) with a custom relay server.
 
 ## About
 
-`croc` is a tool that allows any two computers to simply and securely transfer files and folders. AFAIK, *croc* is the only CLI file-transfer tool that does **all** of the following:
+`mroc` is a tool that allows any two computers to simply and securely transfer files and folders.
 
 - Allows **any two computers** to transfer data (using a relay)
 - Provides **end-to-end encryption** (using PAKE)
@@ -22,332 +15,149 @@
 - **IPv6-first** with IPv4 fallback
 - Can **use a proxy**, like Tor
 
-For more information about `croc`, see [my blog post](https://schollz.com/tinker/croc6/) or read a [recent interview I did](https://console.substack.com/p/console-91).
-
-![Example](src/install/customization.gif)
-
 ## Install
 
-You can download [the latest release for your system](https://github.com/schollz/croc/releases/latest), or install a release from the command-line:
+Download [the latest release](https://github.com/yusufgurdogan/mroc/releases/latest), or install from the command-line:
 
 ```bash
-curl https://getcroc.schollz.com | bash
+curl -sL https://raw.githubusercontent.com/yusufgurdogan/mroc/main/install.sh | bash
 ```
-
-### On macOS
-
-Using [Homebrew](https://brew.sh/):
-
-```bash
-brew install croc
-```
-
-Using [MacPorts](https://www.macports.org/):
-
-```bash
-sudo port selfupdate
-sudo port install croc
-```
-
-### On Windows
-
-You can install the latest release with [Scoop](https://scoop.sh/), [Chocolatey](https://chocolatey.org/), or [Winget](https://learn.microsoft.com/windows/package-manager/):
-
-```bash
-scoop install croc
-```
-
-```bash
-choco install croc
-```
-
-```bash
-winget install schollz.croc
-```
-
-### Using nix-env
-
-You can install the latest release with [Nix](https://nixos.org/):
-
-```bash
-nix-env -i croc
-```
-
-### On NixOS
-
-You can add this to your [configuration.nix](https://nixos.org/manual/nixos/stable/#ch-configuration):
-
-```nix
-environment.systemPackages = [
-  pkgs.croc
-];
-```
-
-### On Alpine Linux
-
-First, install dependencies:
-
-```bash
-apk add bash coreutils
-wget -qO- https://getcroc.schollz.com | bash
-```
-
-### On Arch Linux
-
-Install with `pacman`:
-
-```bash
-pacman -S croc
-```
-
-### On Fedora
-
-Install with `dnf`:
-
-```bash
-dnf install croc
-```
-
-### On Gentoo
-
-Install with `portage`:
-
-```bash
-emerge net-misc/croc
-```
-
-### On Termux
-
-Install with `pkg`:
-
-```bash
-pkg install croc
-```
-
-### On FreeBSD
-
-Install with `pkg`:
-
-```bash
-pkg install croc
-```
-
-### On Linux, macOS, and Windows via Conda
-
-You can install from [conda-forge](https://github.com/conda-forge/croc-feedstock) globally with [`pixi`](https://pixi.sh/):
-
-```bash
-pixi global install croc
-```
-
-Or install into a particular environment with [`conda`](https://docs.conda.io/projects/conda/):
-
-```bash
-conda install --channel conda-forge croc
-```
-
-### On Linux, macOS via Docker 
-
-Add the following one-liner function to your ~/.profile (works with any POSIX-compliant shell):
-
-```bash
-croc() { [ $# -eq 0 ] && set -- ""; mkdir -p "$HOME/.config/croc"; docker run --rm -it --user "$(id -u):$(id -g)" -v "$(pwd):/c" -v "$HOME/.config/croc:/.config/croc" -w /c -e CROC_SECRET docker.io/schollz/croc "$@"; }
-```
-
-You can also just paste it in the terminal for current session. On first run Docker will pull the image. `croc` via Docker will only work within the current directory and its subdirectories.
 
 ### Build from Source
 
-If you prefer, you can [install Go](https://go.dev/dl/) and build from source (requires Go 1.22+):
-
 ```bash
-go install github.com/schollz/croc/v10@latest
+go install github.com/yusufgurdogan/mroc@latest
 ```
 
-### On Android
+Or clone and build:
 
-There is a 3rd-party F-Droid app [available to download](https://f-droid.org/packages/com.github.howeyc.crocgui/).
+```bash
+git clone https://github.com/yusufgurdogan/mroc.git
+cd mroc
+go build -o mroc
+```
 
 ## Usage
 
-To send a file, simply do:
+To send a file:
 
 ```bash
-$ croc send [file(s)-or-folder]
-Sending 'file-or-folder' (X MB)
-Code is: code-phrase
+mroc send [file(s)-or-folder]
 ```
 
-Then, to receive the file (or folder) on another computer, run:
+To receive:
 
 ```bash
-croc code-phrase
+mroc [code-phrase]
 ```
 
 The code phrase is used to establish password-authenticated key agreement ([PAKE](https://en.wikipedia.org/wiki/Password-authenticated_key_agreement)) which generates a secret key for the sender and recipient to use for end-to-end encryption.
 
-### Customizations & Options
+### Using `mroc` on Linux or macOS
 
-#### Using `croc` on Linux or macOS
-
-On Linux and macOS, the sending and receiving process is slightly different to avoid [leaking the secret via the process name](https://nvd.nist.gov/vuln/detail/CVE-2023-43621). You will need to run `croc` with the secret as an environment variable. For example, to receive with the secret `***`:
+On Linux and macOS, the sending and receiving process is slightly different to avoid leaking the secret via the process name. You will need to run `mroc` with the secret as an environment variable:
 
 ```bash
-CROC_SECRET=*** croc
+MROC_SECRET=*** mroc
 ```
 
 For single-user systems, the default behavior can be permanently enabled by running:
 
 ```bash
-croc --classic
+mroc --classic
 ```
 
-#### Custom Code Phrase
+### Custom Code Phrase
 
 You can send with your own code phrase (must be more than 6 characters):
 
 ```bash
-croc send --code [code-phrase] [file(s)-or-folder]
+mroc send --code [code-phrase] [file(s)-or-folder]
 ```
 
-#### Allow Overwriting Without Prompt
-
-To automatically overwrite files without prompting, use the `--overwrite` flag:
+### Send Text
 
 ```bash
-croc --yes --overwrite <code>
+mroc send --text "hello world"
 ```
 
-#### Excluding Folders
-
-To exclude folders from being sent, use the `--exclude` flag with comma-delimited exclusions:
+### Send Multiple Files
 
 ```bash
-croc send --exclude "node_modules,.venv" [folder]
+mroc send [file1] [file2] [file3] [folder1]
 ```
 
-#### Use Pipes - stdin and stdout
-
-You can pipe to `croc`:
+### Show QR Code
 
 ```bash
-cat [filename] | croc send
+mroc send --qr [file(s)-or-folder]
 ```
 
-To receive the file to `stdout`, you can use:
+### Use Pipes
 
 ```bash
-croc --yes [code-phrase] > out
+cat [filename] | mroc send
 ```
-
-#### Send Text
-
-To send URLs or short text, use:
 
 ```bash
-croc send --text "hello world"
+mroc --yes [code-phrase] > out
 ```
 
-#### Send Multiple Files
-
-You can send multiple files directly by listing the files and/or folders:
+### Use a Proxy
 
 ```bash
-croc send [file1] [file2] [file3] [folder1] [folder2]
+mroc --socks5 "127.0.0.1:9050" send SOMEFILE
 ```
 
-#### Show QR Code
-
-To show QR code (for mobile devices), use:
-
-```bash
-croc send --qr [file(s)-or-folder]
-```
-
-#### Use a Proxy
-
-You can send files via a proxy by adding `--socks5`:
-
-```bash
-croc --socks5 "127.0.0.1:9050" send SOMEFILE
-```
-
-#### Change Encryption Curve
-
-To choose a different elliptic curve for encryption, use the `--curve` flag:
-
-```bash
-croc --curve p521 <codephrase>
-```
-
-#### Change Hash Algorithm
-
-For faster hashing, use the `imohash` algorithm:
-
-```bash
-croc send --hash imohash SOMEFILE
-```
-
-#### Clipboard Options
-
-By default, the code phrase is copied to your clipboard. To disable this:
-
-```bash
-croc --disable-clipboard send [filename]
-```
-
-To copy the full command with the secret as an environment variable (useful on Linux/macOS):
-
-```bash
-croc --extended-clipboard send [filename]
-```
-
-This copies the full command like `CROC_SECRET="code-phrase" croc` (including any relay/pass flags).
-
-#### Quiet Mode
-
-To suppress all output (useful for scripts and automation):
-
-```bash
-croc --quiet send [filename]
-```
-
-#### Self-host Relay
+## Self-host Relay
 
 You can run your own relay:
 
 ```bash
-croc relay
+mroc relay
 ```
 
-By default, it uses TCP ports 9009-9013. You can customize the ports (e.g., `croc relay --ports 1111,1112`), but at least **2** ports are required.
+By default, it uses TCP ports 9009-9013. You can customize the ports:
+
+```bash
+mroc relay --ports 1111,1112
+```
 
 To send files using your relay:
 
 ```bash
-croc --relay "myrelay.example.com:9009" send [filename]
+mroc --relay "myrelay.example.com:9009" send [filename]
 ```
 
-#### Self-host Relay with Docker
-
-You can also run a relay with Docker:
+### Relay with Docker
 
 ```bash
-docker run -d -p 9009-9013:9009-9013 -e CROC_PASS='YOURPASSWORD' docker.io/schollz/croc
+docker run -d -p 9009-9013:9009-9013 -e MROC_PASS='YOURPASSWORD' yusufgurdogan/mroc
 ```
 
-To send files using your custom relay:
+### Relay as a Systemd Service
 
 ```bash
-croc --pass YOURPASSWORD --relay "myreal.example.com:9009" send [filename]
+sudo cp mroc.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable mroc
+sudo systemctl start mroc
 ```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `MROC_RELAY` | Address of the relay server |
+| `MROC_RELAY6` | IPv6 address of the relay server |
+| `MROC_PASS` | Password for the relay |
+| `MROC_SECRET` | Code phrase for sending/receiving |
+| `MROC_CONFIG_DIR` | Custom config directory |
 
 ## Acknowledgements
 
-`croc` has evolved through many iterations, and I am thankful for the contributions! Special thanks to:
+This is a fork of [croc](https://github.com/schollz/croc) by [@schollz](https://github.com/schollz). All credit for the original implementation goes to them.
 
-- [@warner](https://github.com/warner) for the [idea](https://github.com/magic-wormhole/magic-wormhole)
-- [@tscholl2](https://github.com/tscholl2) for the [encryption gists](https://gist.github.com/tscholl2/dc7dc15dc132ea70a98e8542fefffa28)
-- [@skorokithakis](https://github.com/skorokithakis) for [proxying two connections](https://www.stavros.io/posts/proxying-two-connections-go/)
+## License
 
-And many more!
+MIT
