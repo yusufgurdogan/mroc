@@ -34,37 +34,37 @@ func Run() (err error) {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	app := cli.NewApp()
-	app.Name = "croc"
+	app.Name = "mroc"
 	if Version == "" {
 		Version = "v10.3.1"
 	}
 	app.Version = Version
 	app.Compiled = time.Now()
 	app.Usage = "easily and securely transfer stuff from one computer to another"
-	app.UsageText = `croc [GLOBAL OPTIONS] [COMMAND] [COMMAND OPTIONS] [filename(s) or folder]
+	app.UsageText = `mroc [GLOBAL OPTIONS] [COMMAND] [COMMAND OPTIONS] [filename(s) or folder]
 
    USAGE EXAMPLES:
    Send a file:
-      croc send file.txt
+      mroc send file.txt
 
       -git to respect your .gitignore
    Send multiple files:
-      croc send file1.txt file2.txt file3.txt
+      mroc send file1.txt file2.txt file3.txt
     or
-      croc send *.jpg
+      mroc send *.jpg
 
    Send everything in a folder:
-      croc send example-folder-name
+      mroc send example-folder-name
 
    Send a file with a custom code:
-      croc send --code secret-code file.txt
+      mroc send --code secret-code file.txt
 
    Receive a file using code:
-      croc secret-code`
+      mroc secret-code`
 	app.Commands = []*cli.Command{
 		{
 			Name:        "send",
-			Usage:       "send file(s), or folder (see options with croc send -h)",
+			Usage:       "send file(s), or folder (see options with mroc send -h)",
 			Description: "send file(s), or folder, over the relay",
 			ArgsUsage:   "[filename(s) or folder]",
 			Flags: []cli.Flag{
@@ -80,14 +80,14 @@ func Run() (err error) {
 				&cli.BoolFlag{Name: "qrcode", Aliases: []string{"qr"}, Usage: "show receive code as a qrcode"},
 				&cli.StringFlag{Name: "exclude", Value: "", Usage: "exclude files if they contain any of the comma separated strings"},
 			},
-			HelpName: "croc send",
+			HelpName: "mroc send",
 			Action:   send,
 		},
 		{
 			Name:        "relay",
 			Usage:       "start your own relay (optional)",
 			Description: "start relay",
-			HelpName:    "croc relay",
+			HelpName:    "mroc relay",
 			Action:      relay,
 			Flags: []cli.Flag{
 				&cli.StringFlag{Name: "host", Usage: "host of the relay"},
@@ -129,10 +129,10 @@ func Run() (err error) {
 		&cli.StringFlag{Name: "multicast", Value: "239.255.255.250", Usage: "multicast address to use for local discovery"},
 		&cli.StringFlag{Name: "curve", Value: "p256", Usage: "choose an encryption curve (" + strings.Join(pake.AvailableCurves(), ", ") + ")"},
 		&cli.StringFlag{Name: "ip", Value: "", Usage: "set sender ip if known e.g. 10.0.0.1:9009, [::1]:9009"},
-		&cli.StringFlag{Name: "relay", Value: models.DEFAULT_RELAY, Usage: "address of the relay", EnvVars: []string{"CROC_RELAY"}},
-		&cli.StringFlag{Name: "relay6", Value: models.DEFAULT_RELAY6, Usage: "ipv6 address of the relay", EnvVars: []string{"CROC_RELAY6"}},
+		&cli.StringFlag{Name: "relay", Value: models.DEFAULT_RELAY, Usage: "address of the relay", EnvVars: []string{"MROC_RELAY"}},
+		&cli.StringFlag{Name: "relay6", Value: models.DEFAULT_RELAY6, Usage: "ipv6 address of the relay", EnvVars: []string{"MROC_RELAY6"}},
 		&cli.StringFlag{Name: "out", Value: ".", Usage: "specify an output folder to receive the file"},
-		&cli.StringFlag{Name: "pass", Value: models.DEFAULT_PASSPHRASE, Usage: "password for the relay", EnvVars: []string{"CROC_PASS"}},
+		&cli.StringFlag{Name: "pass", Value: models.DEFAULT_PASSPHRASE, Usage: "password for the relay", EnvVars: []string{"MROC_PASS"}},
 		&cli.StringFlag{Name: "socks5", Value: "", Usage: "add a socks5 proxy", EnvVars: []string{"SOCKS5_PROXY"}},
 		&cli.StringFlag{Name: "connect", Value: "", Usage: "add a http proxy", EnvVars: []string{"HTTP_PROXY"}},
 		&cli.StringFlag{Name: "throttleUpload", Value: "", Usage: "throttle the upload speed e.g. 500k"},
@@ -169,11 +169,11 @@ Do you wish to continue to DISABLE the classic mode? (y/N) `)
 				if choice == "y" || choice == "yes" {
 					os.Remove(classicFile)
 					fmt.Print("\nClassic mode DISABLED.\n\n")
-					fmt.Print(`To send and receive, export the CROC_SECRET variable with the code phrase:
+					fmt.Print(`To send and receive, export the MROC_SECRET variable with the code phrase:
 
-  Send:    CROC_SECRET=*** croc send file.txt
+  Send:    MROC_SECRET=*** mroc send file.txt
 
-  Receive: CROC_SECRET=*** croc` + "\n\n")
+  Receive: MROC_SECRET=*** mroc` + "\n\n")
 				} else {
 					fmt.Print("\nClassic mode ENABLED.\n")
 
@@ -195,9 +195,9 @@ Do you wish to continue to enable the classic mode? (y/N) `)
 					os.WriteFile(classicFile, []byte("enabled"), 0o644)
 					fmt.Print(`To send and receive, use the code phrase:
 
-  Send:    croc send --code *** file.txt
+  Send:    mroc send --code *** file.txt
 
-  Receive: croc ***` + "\n\n")
+  Receive: mroc ***` + "\n\n")
 				} else {
 					fmt.Print("\nClassic mode DISABLED.\n")
 				}
@@ -420,27 +420,27 @@ func send(c *cli.Context) (err error) {
 		fnames = c.Args().Slice()
 	}
 	if len(fnames) == 0 {
-		return errors.New("must specify file: croc send [filename(s) or folder]")
+		return errors.New("must specify file: mroc send [filename(s) or folder]")
 	}
 
 	classicInsecureMode := utils.Exists(getClassicConfigFile(true))
 	if !classicInsecureMode {
 		// if operating system is UNIX, then use environmental variable to set the code
-		if (!(runtime.GOOS == "windows") && c.IsSet("code")) || os.Getenv("CROC_SECRET") != "" {
-			crocOptions.SharedSecret = os.Getenv("CROC_SECRET")
+		if (!(runtime.GOOS == "windows") && c.IsSet("code")) || os.Getenv("MROC_SECRET") != "" {
+			crocOptions.SharedSecret = os.Getenv("MROC_SECRET")
 			if crocOptions.SharedSecret == "" {
 				fmt.Printf(`On UNIX systems, to send with a custom code phrase,
-you need to set the environmental variable CROC_SECRET:
+you need to set the environmental variable MROC_SECRET:
 
-  CROC_SECRET=**** croc send file.txt
+  MROC_SECRET=**** mroc send file.txt
 
 Or you can have the code phrase automatically generated:
 
-  croc send file.txt
+  mroc send file.txt
 
-Or you can go back to the classic croc behavior by enabling classic mode:
+Or you can go back to the classic mroc behavior by enabling classic mode:
 
-  croc --classic
+  mroc --classic
 
 `)
 				os.Exit(0)
@@ -508,7 +508,7 @@ Or you can go back to the classic croc behavior by enabling classic mode:
 }
 
 func getStdin() (fnames []string, err error) {
-	f, err := os.CreateTemp(".", "croc-stdin-")
+	f, err := os.CreateTemp(".", "mroc-stdin-")
 	if err != nil {
 		return
 	}
@@ -525,7 +525,7 @@ func getStdin() (fnames []string, err error) {
 }
 
 func makeTempFileWithString(s string) (fnames []string, err error) {
-	f, err := os.CreateTemp(".", "croc-stdin-")
+	f, err := os.CreateTemp(".", "mroc-stdin-")
 	if err != nil {
 		return
 	}
@@ -695,25 +695,25 @@ func receive(c *cli.Context) (err error) {
 	}
 
 	classicInsecureMode := utils.Exists(getClassicConfigFile(true))
-	if crocOptions.SharedSecret == "" && os.Getenv("CROC_SECRET") != "" {
-		crocOptions.SharedSecret = os.Getenv("CROC_SECRET")
+	if crocOptions.SharedSecret == "" && os.Getenv("MROC_SECRET") != "" {
+		crocOptions.SharedSecret = os.Getenv("MROC_SECRET")
 	} else if !(runtime.GOOS == "windows") && crocOptions.SharedSecret != "" && !classicInsecureMode {
-		crocOptions.SharedSecret = os.Getenv("CROC_SECRET")
+		crocOptions.SharedSecret = os.Getenv("MROC_SECRET")
 		if crocOptions.SharedSecret == "" {
-			fmt.Printf(`On UNIX systems, to receive with croc you either need
+			fmt.Printf(`On UNIX systems, to receive with mroc you either need
 to set a code phrase using your environmental variables:
 
-  CROC_SECRET=**** croc
+  MROC_SECRET=**** mroc
 
-Or you can specify the code phrase when you run croc without
+Or you can specify the code phrase when you run mroc without
 declaring the secret on the command line:
 
-  croc
+  mroc
   Enter receive code: ****
 
-Or you can go back to the classic croc behavior by enabling classic mode:
+Or you can go back to the classic mroc behavior by enabling classic mode:
 
-  croc --classic
+  mroc --classic
 
 `)
 			os.Exit(0)
@@ -775,7 +775,7 @@ Or you can go back to the classic croc behavior by enabling classic mode:
 }
 
 func relay(c *cli.Context) (err error) {
-	log.Infof("starting croc relay version %v", Version)
+	log.Infof("starting mroc relay version %v", Version)
 	debugString := "info"
 	if c.Bool("debug") {
 		debugString = "debug"

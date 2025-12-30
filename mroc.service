@@ -1,12 +1,12 @@
 [Unit]
-Description=croc relay
+Description=mroc relay
 After=network.target
 
 [Service]
 Type=simple
 DynamicUser=yes
 CapabilityBoundingSet=CAP_NET_BIND_SERVICE
-ExecStart=/usr/bin/croc relay
+ExecStart=/usr/bin/mroc relay
 
 [Install]
 WantedBy=multi-user.target

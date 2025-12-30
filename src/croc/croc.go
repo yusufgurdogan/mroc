@@ -546,7 +546,7 @@ func (c *Client) sendCollectFiles(filesInfo []FileInfo) (err error) {
 	if len(c.FilesToTransfer) == 1 {
 		fname = fmt.Sprintf("'%s'", c.FilesToTransfer[0].Name)
 	}
-	if strings.HasPrefix(fname, "'croc-stdin-") {
+	if strings.HasPrefix(fname, "'mroc-stdin-") {
 		fname = "'stdin'"
 		if c.Options.SendingText {
 			fname = "'text'"
@@ -670,14 +670,14 @@ func (c *Client) Send(filesInfo []FileInfo, emptyFoldersToTransfer []FileInfo, t
 
 On the other computer run:
 (For Windows)
-    croc %[2]s%[1]s
+    mroc %[2]s%[1]s
 (For Linux/macOS)
-    CROC_SECRET=%[1]q croc %[2]s
+    MROC_SECRET=%[1]q mroc %[2]s
 `, c.Options.SharedSecret, flags.String())
 	if !c.Options.DisableClipboard {
 		clipboardText := c.Options.SharedSecret
 		if c.Options.ExtendedClipboard {
-			clipboardText = fmt.Sprintf("CROC_SECRET=%q croc %s", c.Options.SharedSecret, strings.TrimSpace(flags.String()))
+			clipboardText = fmt.Sprintf("MROC_SECRET=%q mroc %s", c.Options.SharedSecret, strings.TrimSpace(flags.String()))
 		}
 		copyToClipboard(clipboardText, c.Options.Quiet, c.Options.ExtendedClipboard)
 	}
@@ -1304,7 +1304,7 @@ func (c *Client) processMessageFileInfo(m message.Message) (done bool, err error
 		if len(fi.Name) > c.longestFilename {
 			c.longestFilename = len(fi.Name)
 		}
-		if strings.HasPrefix(fi.Name, "croc-stdin-") && c.Options.SendingText {
+		if strings.HasPrefix(fi.Name, "mroc-stdin-") && c.Options.SendingText {
 			c.FilesToTransfer[i].Name, err = utils.RandomFileName()
 			if err != nil {
 				return
@@ -1846,7 +1846,7 @@ func (c *Client) updateIfRecipientHasFileInfo() (err error) {
 		if !bytes.Equal(fileHash, fileInfo.Hash) {
 			log.Debugf("hashed %s to %x using %s", fileInfo.Name, fileHash, c.Options.HashAlgorithm)
 			log.Debugf("hashes are not equal %x != %x", fileHash, fileInfo.Hash)
-			if errHash == nil && !c.Options.Overwrite && errRecipientFile == nil && !strings.HasPrefix(fileInfo.Name, "croc-stdin-") && !c.Options.SendingText {
+			if errHash == nil && !c.Options.Overwrite && errRecipientFile == nil && !strings.HasPrefix(fileInfo.Name, "mroc-stdin-") && !c.Options.SendingText {
 
 				missingChunks := utils.ChunkRangesToChunks(utils.MissingChunks(
 					path.Join(fileInfo.FolderRemote, fileInfo.Name),

@@ -24,6 +24,8 @@ go.work.sum
 # Environment variables file
 .env
 
-# Croc builds
+# Builds
 /croc
+/mroc
 croc_v*
+mroc_v*

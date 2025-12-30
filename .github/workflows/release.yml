@@ -22,9 +22,9 @@ jobs:
 
       - name: Prepare source tarball
         run: |
-          git clone -b ${{ github.event.release.name }} --depth 1 https://github.com/schollz/croc croc-${{ github.event.release.name }}
-          cd croc-${{ github.event.release.name }} && go mod tidy && go mod vendor
-          cd .. && tar -czvf croc_${{ github.event.release.name }}_src.tar.gz croc-${{ github.event.release.name }}
+          git clone -b ${{ github.event.release.name }} --depth 1 https://github.com/${{ github.repository }} mroc-${{ github.event.release.name }}
+          cd mroc-${{ github.event.release.name }} && go mod tidy && go mod vendor
+          cd .. && tar -czvf mroc_${{ github.event.release.name }}_src.tar.gz mroc-${{ github.event.release.name }}
 
       - name: Upload source artifact
         uses: actions/upload-artifact@v6
@@ -174,16 +174,16 @@ jobs:
               LDFLAGS='-extldflags "-static"'
               ;;
           esac
-          
+
           echo "Building for ${{ matrix.goos }}/${{ matrix.goarch }} with LDFLAGS: $LDFLAGS"
-          go build -ldflags "$LDFLAGS" -o croc${{ matrix.ext }}
+          go build -ldflags "$LDFLAGS" -o mroc${{ matrix.ext }}
 
       - name: Create archive
         run: |
           if [ "${{ matrix.archive }}" = "zip" ]; then
-            zip croc_${{ github.event.release.name }}_${{ matrix.name }}.zip croc${{ matrix.ext }} LICENSE
+            zip mroc_${{ github.event.release.name }}_${{ matrix.name }}.zip mroc${{ matrix.ext }} LICENSE
           else
-            tar -czvf croc_${{ github.event.release.name }}_${{ matrix.name }}.tar.gz croc${{ matrix.ext }} LICENSE
+            tar -czvf mroc_${{ github.event.release.name }}_${{ matrix.name }}.tar.gz mroc${{ matrix.ext }} LICENSE
           fi
 
       - name: Upload build artifact
@@ -207,11 +207,11 @@ jobs:
       - name: Generate checksums
         run: |
           # Generate SHA256 checksums for all archives
-          sha256sum *.zip *.tar.gz > croc_${{ github.event.release.name }}_checksums.txt
-          
+          sha256sum *.zip *.tar.gz > mroc_${{ github.event.release.name }}_checksums.txt
+
           # Display the checksums file for verification
           echo "Generated checksums:"
-          cat croc_${{ github.event.release.name }}_checksums.txt
+          cat mroc_${{ github.event.release.name }}_checksums.txt
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2

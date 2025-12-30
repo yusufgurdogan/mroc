@@ -35,10 +35,10 @@ const NbBytesWords = 4
 
 // Get or create home directory
 func GetConfigDir(requireValidPath bool) (homedir string, err error) {
-	if envHomedir, isSet := os.LookupEnv("CROC_CONFIG_DIR"); isSet {
+	if envHomedir, isSet := os.LookupEnv("MROC_CONFIG_DIR"); isSet {
 		homedir = envHomedir
 	} else if xdgConfigHome, isSet := os.LookupEnv("XDG_CONFIG_HOME"); isSet {
-		homedir = path.Join(xdgConfigHome, "croc")
+		homedir = path.Join(xdgConfigHome, "mroc")
 	} else {
 		homedir, err = os.UserHomeDir()
 		if err != nil {
@@ -48,7 +48,7 @@ func GetConfigDir(requireValidPath bool) (homedir string, err error) {
 			}
 			return
 		}
-		homedir = path.Join(homedir, ".config", "croc")
+		homedir = path.Join(homedir, ".config", "mroc")
 	}
 
 	if requireValidPath {
@@ -430,7 +430,7 @@ func GetLocalIPs() (ips []string, err error) {
 }
 
 func RandomFileName() (fname string, err error) {
-	f, err := os.CreateTemp(".", "croc-stdin-")
+	f, err := os.CreateTemp(".", "mroc-stdin-")
 	if err != nil {
 		return
 	}
@@ -761,11 +761,11 @@ func ValidFileName(fname string) (err error) {
 	return
 }
 
-const crocRemovalFile = "croc-marked-files.txt"
+const mrocRemovalFile = "mroc-marked-files.txt"
 
 func MarkFileForRemoval(fname string) {
 	// append the fname to the list of files to remove
-	f, err := os.OpenFile(crocRemovalFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
+	f, err := os.OpenFile(mrocRemovalFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		log.Debug(err)
 		return
@@ -776,7 +776,7 @@ func MarkFileForRemoval(fname string) {
 
 func RemoveMarkedFiles() (err error) {
 	// read the file and remove all the files
-	f, err := os.Open(crocRemovalFile)
+	f, err := os.Open(mrocRemovalFile)
 	if err != nil {
 		return
 	}
@@ -789,6 +789,6 @@ func RemoveMarkedFiles() (err error) {
 		}
 	}
 	f.Close()
-	os.Remove(crocRemovalFile)
+	os.Remove(mrocRemovalFile)
 	return
 }

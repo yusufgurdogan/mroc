@@ -369,7 +369,7 @@ func TestCrocError(t *testing.T) {
 }
 
 func TestReceiverStdoutWithInvalidSecret(t *testing.T) {
-	// Test for issue: panic when receiving with --stdout and invalid CROC_SECRET
+	// Test for issue: panic when receiving with --stdout and invalid MROC_SECRET
 	// This should fail gracefully without panicking
 	log.SetLevel("warn")
 	receiver, err := New(Options{
